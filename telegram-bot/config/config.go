@@ -15,7 +15,7 @@ var (
 func Load() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println("⚠️  .env файл не найден, читаю переменные окружения напрямую")
+		log.Println(".env файл не найден, читаю переменные окружения напрямую")
 	}
 
 	TelegramToken = os.Getenv("TELEGRAM_TOKEN")
