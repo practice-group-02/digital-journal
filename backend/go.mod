@@ -1,4 +1,4 @@
-module e-shop-management-system
+module digital-journal
 
 go 1.22
 

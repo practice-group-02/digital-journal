@@ -2,24 +2,25 @@ package dal
 
 import (
 	"database/sql"
-	"e-shop-management-system/internal/config"
+	"digital-journal/internal/config"
 	"fmt"
 
 	_ "github.com/lib/pq"
 )
 
-type Store struct {
-	db *sql.DB
-}
+var db *sql.DB
 
-func NewStore(DBconfig config.DBConfig) (*Store, error) {
+func NewStore(DBconfig config.DBConfig) error {
+	var err error
 	conn := fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable", DBconfig.DBconnection, DBconfig.DBuser, DBconfig.DBpassword, DBconfig.DBhost, DBconfig.DBport, DBconfig.DBname)
-	db, err := sql.Open(DBconfig.DBconnection, conn)
+	db, err = sql.Open(DBconfig.DBconnection, conn)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &Store{
-		db: db,
-	}, nil
+	err = db.Ping()
+    if err != nil {
+        return err
+    }
+	return nil
 }

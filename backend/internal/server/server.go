@@ -1,9 +1,8 @@
 package server
 
 import (
-	"e-shop-management-system/internal/config"
-	"e-shop-management-system/internal/dal"
-	"e-shop-management-system/internal/handlers"
+	"digital-journal/internal/config"
+	"digital-journal/internal/dal"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -11,12 +10,11 @@ import (
 
 type server struct {
 	config  *config.Config
-	handler *handlers.Handler
 	mux     *http.ServeMux
 }
 
 func NewServer(config *config.Config) *server {
-	store, err := dal.NewStore(*config.DBconfigs)
+	err := dal.NewStore(*config.DBconfigs)
 	if err != nil {
 		slog.Error("cannot connecto database!", "error", err)
 	} else {
@@ -26,7 +24,6 @@ func NewServer(config *config.Config) *server {
 	return &server{
 		mux:     http.NewServeMux(),
 		config:  config,
-		handler: handlers.NewHandler(config, store),
 	}
 }
 
