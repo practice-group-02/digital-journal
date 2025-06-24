@@ -4,11 +4,38 @@ const Programs = () => {
   const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/programs')
-      .then((res) => res.json())
-      .then((data) => setPrograms(data))
-      .catch((err) => console.error('Ошибка при получении программ:', err));
-  }, []);
+  setPrograms([
+    {
+      id: 1,
+      title: "Стипендия Bolashaq",
+      country: "Казахстан",
+      deadline: "2025-07-31",
+      description: "Государственная программа финансирования обучения за рубежом.",
+    },
+    {
+      id: 2,
+      title: "Грант Erasmus+",
+      country: "Европейский Союз",
+      deadline: "2025-10-01",
+      description: "Программа академического обмена для студентов и магистров.",
+    },
+    {
+      id: 3,
+      title: "Стажировка в OECD",
+      country: "Франция",
+      deadline: "2025-08-20",
+      description: "Оплачиваемая стажировка для молодых специалистов и выпускников.",
+    },
+    {
+      id: 4,
+      title: "Грант DAAD",
+      country: "Германия",
+      deadline: "2025-09-15",
+      description: "Финансирование магистратуры и аспирантуры в университетах Германии.",
+    },
+  ]);
+}, []);
+
 
   return (
     <div>
@@ -18,12 +45,12 @@ const Programs = () => {
       ) : (
         <ul>
           {programs.map((p) => (
-            <li key={p.id}>
+            <div className="program-card" key={p.id}>
               <h3>{p.title}</h3>
-              <p>{p.country}</p>
-              <p>Дедлайн: {p.deadline}</p>
+              <p><strong>Страна:</strong> {p.country}</p>
+              <p><strong>Дедлайн:</strong> {p.deadline}</p>
               <p>{p.description}</p>
-            </li>
+              </div>
           ))}
         </ul>
       )}
