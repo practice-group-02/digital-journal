@@ -1,55 +1,41 @@
-CREATE TABLE countries (
+CREATE TABLE program_types (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
 
-CREATE TABLE languages (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
-CREATE TABLE universities (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    website TEXT
+    username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tags (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE programs (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     description TEXT,
+    type INT,
+    country TEXT,
+    organization TEXT,
     deadline DATE,
-    duration TEXT,
-    degree TEXT,
-    funding TEXT,
-    url TEXT,
-    country_id INT REFERENCES countries(id),
-    language_id INT REFERENCES languages(id),
-    university_id INT REFERENCES universities(id)
+    link TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    user_id INT,
+    FOREIGN KEY (type) REFERENCES program_types(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE program_tags (
-    program_id INT REFERENCES programs(id) ON DELETE CASCADE,
-    tag_id INT REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (program_id, tag_id)
-);
-
-CREATE TABLE eligibility (
-    id SERIAL PRIMARY KEY,
-    program_id INT REFERENCES programs(id) ON DELETE CASCADE,
-    citizenship TEXT,
-    age_range TEXT,
-    education_level TEXT,
-    experience_required TEXT
-);
-
-CREATE TABLE documents (
-    id SERIAL PRIMARY KEY,
-    program_id INT REFERENCES programs(id) ON DELETE CASCADE,
-    name TEXT NOT NULL
+CREATE TABLE programs_tags (
+    program_id INT,
+    tag_id INT,
+    PRIMARY KEY (program_id, tag_id),
+    FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
