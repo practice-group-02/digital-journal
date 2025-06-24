@@ -1,8 +1,8 @@
 package main
 
 import (
-	"e-shop-management-system/internal/config"
-	"e-shop-management-system/internal/server"
+	"digital-journal/internal/config"
+	"digital-journal/internal/server"
 	"log/slog"
 )
 
