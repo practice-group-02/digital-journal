@@ -25,7 +25,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersMu.Unlock()
+	usersMu.Lock()
 	defer usersMu.Unlock()
 
 	if exists, err := service.UserExists(user.Email, user.Username); err != nil {
@@ -50,6 +50,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	slog.Info("created user successfully", "op", op)
 	WriteJSONResponse(w, http.StatusCreated, map[string]string{"message": "User created successfully"})
 }
 
