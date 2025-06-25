@@ -2,14 +2,48 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - DB_CONNECTION=postgres
       - DB_HOST=db
-      - DB_USER=latte
-      - DB_PASSWORD=latte
-      - DB_NAME=frappuccino
+      - DB_USER=postgres  # Changed from latte
+      - DB_PASSWORD=postgres  # Changed from latte
+      - DB_NAME=journal
       - DB_PORT=5432
-      - SERVER_PORT=8080
+      - APP_PORT=8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres  # Changed from latte
+      - POSTGRES_PASSWORD=postgres  # Changed from latte
+      - POSTGRES_DB=journal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d journal"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pg.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
