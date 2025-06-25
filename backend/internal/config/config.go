@@ -21,7 +21,6 @@ type AppConfig struct {
 }
 
 type DBConfig struct {
-	DBconnection string `env:"DB_CONNECTION"`
 	DBhost       string `env:"DB_HOST"`
 	DBuser       string `env:"DB_USER"`
 	DBpassword   string `env:"DB_PASSWORD"`
