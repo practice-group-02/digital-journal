@@ -1,16 +1,19 @@
 package server
 
 import (
+	"database/sql"
 	"digital-journal/internal/config"
 	"digital-journal/internal/dal"
+	"digital-journal/internal/handlers"
 	"fmt"
 	"log/slog"
 	"net/http"
 )
 
 type server struct {
-	config  *config.Config
-	mux     *http.ServeMux
+	config *config.Config
+	mux    *http.ServeMux
+	store  *sql.DB
 }
 
 func NewServer(config *config.Config) *server {
@@ -21,9 +24,15 @@ func NewServer(config *config.Config) *server {
 		slog.Info("successfully connected to database", "db port", config.DBconfigs.DBport)
 	}
 
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /program/{ProgramType}", handlers.PostProgram)
+	mux.HandleFunc("POST /register", handlers.CreateUser)
+	mux.HandleFunc("POST /login", handlers.LoginUser)
+
 	return &server{
-		mux:     http.NewServeMux(),
-		config:  config,
+		mux:    mux,
+		config: config,
+		store:  dal.DB,
 	}
 }
 
