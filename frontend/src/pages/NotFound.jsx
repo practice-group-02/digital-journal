@@ -1,15 +1,16 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
-const NotFound = () => {
+export default function NotFound() {
   return (
-    <div>
-      <h1>404 - Страница не найдена 😕</h1>
-      <p>
-        Вернуться на <Link to="/">главную</Link>.
-      </p>
+    <div className="container py-8 text-center">
+      <h1 className="text-4xl font-bold mb-4">404</h1>
+      <p className="text-xl mb-6">Страница не найдена</p>
+      <Link 
+        to="/" 
+        className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+      >
+        Вернуться на главную
+      </Link>
     </div>
-  );
-};
-
-export default NotFound;
+  )
+}
