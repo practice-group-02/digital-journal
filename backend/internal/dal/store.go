@@ -5,22 +5,40 @@ import (
 	"digital-journal/internal/config"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 var DB *sql.DB
 
 func NewStore(DBconfig config.DBConfig) error {
-	var err error
-	conn := fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable", DBconfig.DBconnection, DBconfig.DBuser, DBconfig.DBpassword, DBconfig.DBhost, DBconfig.DBport, DBconfig.DBname)
-	DB, err = sql.Open(DBconfig.DBconnection, conn)
-	if err != nil {
-		return err
+	// Validate required fields
+	if DBconfig.DBhost == "" || DBconfig.DBuser == "" || DBconfig.DBname == "" {
+		return fmt.Errorf("missing required database configuration")
 	}
 
-	err = DB.Ping()
-	if err != nil {
-		return err
+	// Default to port 5432 if not specified
+	if DBconfig.DBport == "" {
+		DBconfig.DBport = "5432"
 	}
+
+	// Build connection string
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		DBconfig.DBhost,
+		DBconfig.DBport,
+		DBconfig.DBuser,
+		DBconfig.DBpassword,
+		DBconfig.DBname)
+
+	var err error
+	DB, err = sql.Open("postgres", connStr) // Always use "postgres" as driver name
+	if err != nil {
+		return fmt.Errorf("failed to open database connection: %w", err)
+	}
+
+	// Verify connection works
+	if err = DB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+
 	return nil
 }
