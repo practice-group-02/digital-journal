@@ -21,11 +21,11 @@ type AppConfig struct {
 }
 
 type DBConfig struct {
-	DBhost       string `env:"DB_HOST"`
-	DBuser       string `env:"DB_USER"`
-	DBpassword   string `env:"DB_PASSWORD"`
-	DBname       string `env:"DB_NAME"`
-	DBport       string `env:"DB_PORT"`
+	DBhost       string `env:"DB_HOST" default:"db"`
+	DBuser       string `env:"DB_USER" default:"postgres"`
+	DBpassword   string `env:"DB_PASSWORD" default:"postgres"`
+	DBname       string `env:"DB_NAME" default:"digital_journal"`
+	DBport       string `env:"DB_PORT" default:"5432"`
 }
 
 
