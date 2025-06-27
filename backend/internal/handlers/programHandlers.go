@@ -42,12 +42,12 @@ func GetPrograms(w http.ResponseWriter, r *http.Request) {
 	programs, err := service.GetProgramsFromDB()
 	if err != nil {
 		if err.Error() == "programs not found" {
-			slog.Error("failed to get programs by tags", "error", err)
+			slog.Error("failed to get programs", "error", err)
 			http.Error(w, "Programs not found", http.StatusNotFound)
 			return
 		}
-		slog.Error("failed to get programs by tags", "error", err)
-		http.Error(w, "Failed to fetch programs with tags", http.StatusInternalServerError)
+		slog.Error("failed to get programs", "error", err)
+		http.Error(w, "Failed to fetch programs", http.StatusInternalServerError)
 		return
 	}
 
@@ -70,6 +70,32 @@ func GetProgramsWithTags(w http.ResponseWriter, r *http.Request) {
 		}
 		slog.Error("failed to get programs by tags", "error", err)
 		http.Error(w, "Failed to fetch programs with tags", http.StatusInternalServerError)
+		return
+	}
+
+	WriteJSONResponse(w, http.StatusOK, programs)
+}
+
+
+func GetProgramsOfType(w http.ResponseWriter, r *http.Request) {
+	programType := r.PathValue("Type")
+
+	if programType == "" {
+		
+		http.Error(w, "Type is required", http.StatusBadRequest)
+		return
+	}
+
+	programType = strings.ToLower(programType)
+	programs, err := service.GetProgramsByType(programType)
+	if err != nil {
+		if err.Error() == "programs not found" {
+			slog.Error("failed to get programs with type", "error", err)
+			http.Error(w, "Programs not found", http.StatusNotFound)
+			return
+		}
+		slog.Error("failed to get programs with type", "error", err)
+		http.Error(w, "Failed to fetch programs with type", http.StatusInternalServerError)
 		return
 	}
 

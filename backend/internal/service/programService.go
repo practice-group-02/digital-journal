@@ -157,3 +157,46 @@ func GetProgramsByTags(tags string) ([]models.Program, error) {
 
 	return programs, nil
 }
+
+
+
+func GetProgramsByType(programType string) ([]models.Program, error) {
+	var programs []models.Program
+	query := `
+		SELECT p.id, p.title, p.description, pt.name as type, p.country, p.organization, p.deadline, p.link, u.username, p.created_at, p.updated_at
+		FROM programs p
+		JOIN program_types pt ON p.type = pt.id
+		JOIN users u ON p.user_id = u.id
+		WHERE pt.name = $1`
+
+	rows, err := dal.DB.Query(query, programType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch programs by type: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var program models.Program
+		if err := rows.Scan(&program.ID, &program.Title, &program.Description, &program.Type, &program.Country, &program.Organization, &program.Deadline, &program.Link, &program.Username, &program.CreatedAt, &program.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan program row: %w", err)
+		}
+
+		tags, err := getTagsForProgram(program.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch tags for program %d: %w", program.ID, err)
+		}
+		program.Tags = tags
+
+		programs = append(programs, program)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %w", err)
+	}
+
+	if len(programs) == 0 {
+		return nil, fmt.Errorf("programs not found")
+	}
+
+	return programs, nil
+}
