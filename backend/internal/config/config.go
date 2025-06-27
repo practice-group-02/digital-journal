@@ -12,7 +12,7 @@ const (
 )
 
 type Config struct {
-	DBconfigs     *DBConfig
+	DBconfigs *DBConfig
 	AppConfig *AppConfig
 }
 
@@ -21,13 +21,12 @@ type AppConfig struct {
 }
 
 type DBConfig struct {
-	DBhost       string `env:"DB_HOST" default:"db"`
-	DBuser       string `env:"DB_USER" default:"postgres"`
-	DBpassword   string `env:"DB_PASSWORD" default:"postgres"`
-	DBname       string `env:"DB_NAME" default:"digital_journal"`
-	DBport       string `env:"DB_PORT" default:"5432"`
+	DBhost     string `env:"DB_HOST" default:"db"`
+	DBuser     string `env:"DB_USER" default:"postgres"`
+	DBpassword string `env:"DB_PASSWORD" default:"postgres"`
+	DBname     string `env:"DB_NAME" default:"digital_journal"`
+	DBport     string `env:"DB_PORT" default:"5432"`
 }
-
 
 func NewConfig() *Config {
 	var dbConfig DBConfig
@@ -63,7 +62,7 @@ func NewConfig() *Config {
 	appConfig.Port = envVar
 
 	return &Config{
-		DBconfigs:  &dbConfig,
+		DBconfigs: &dbConfig,
 		AppConfig: &appConfig,
 	}
 }

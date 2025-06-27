@@ -26,6 +26,7 @@ services:
       - POSTGRES_DB=digital_journal
     volumes:
       - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/migrations/insert.sql:/docker-entrypoint-initdb.d/insert.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -47,15 +48,3 @@ services:
       db:
         condition: service_healthy
     restart: always
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        REACT_APP_API_URL: http://localhost:8080
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
