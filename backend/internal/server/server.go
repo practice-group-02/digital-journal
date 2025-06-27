@@ -25,11 +25,11 @@ func NewServer(config *config.Config) *server {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /program/{ProgramType}", handlers.PostProgram)
 	mux.HandleFunc("POST /register", handlers.CreateUser)
 	mux.HandleFunc("POST /login", handlers.LoginUser)
+	mux.HandleFunc("POST /program", handlers.PostProgram)
 	mux.HandleFunc("GET /programs", handlers.GetPrograms)
-	mux.HandleFunc("GET /programsWithTags", handlers.GetProgramsWithTags)
+	mux.HandleFunc("GET /programs/tags", handlers.GetProgramsWithTags)
 
 	return &server{
 		mux:    mux,

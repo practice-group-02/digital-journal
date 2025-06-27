@@ -53,7 +53,7 @@ INSERT INTO programs
     1,
     'Казахстан',
     'Центр международных программ при Министерстве науки и высшего образования РК',
-    NULL,
+    '1900-01-01',
     'https://bolashak.gov.kz/ru/',
     1
     );
@@ -79,7 +79,7 @@ INSERT INTO programs
     1,
     'Япония',
     'MEXT',
-    NULL,
+    '1900-01-01',
     'https://www.studyinjapan.go.jp/en/smap-stopj-applications-scholarships-mext/',
     1
     );
@@ -107,7 +107,7 @@ INSERT INTO programs
     2,
     'международный',
     'AAUW',
-    NULL,
+    '1900-01-01',
     'https://www.aauw.org/',
     1
     );
@@ -120,7 +120,7 @@ INSERT INTO programs
     2,
     'Европа / международный',
     'Allianz Foundation',
-    NULL,
+    '1900-01-01',
     'https://www.allianzfoundation.org/',
     1
     );
@@ -133,7 +133,7 @@ INSERT INTO programs
     2,
     'Австрия',
     'Австрийское агентство по международной мобильности и сотрудничеству в сфере образования и науки (OeAD), Венский университет, Технический университет Граца',
-    NULL,
+    '1900-01-01',
     'https://www.univie.ac.at/en/studying/',
     1
     );
@@ -146,7 +146,7 @@ INSERT INTO programs
     3,
     'ЕС / международный',
     'Европейская комиссия',
-    NULL,
+    '1900-01-01',
     'https://ec.europa.eu/',
     1
     );
@@ -198,7 +198,7 @@ INSERT INTO programs
     3,
     'Турция',
     'Правительство Турции',
-    NULL,
+    '1900-01-01',
     'https://www.turkiyeburslari.gov.tr/',
     1
     );
@@ -224,7 +224,7 @@ INSERT INTO programs
     4,
     'глобальный',
     'Red Bull',
-    NULL,
+    '1900-01-01',
     'https://www.redbullbasement.com/',
     1
     );
@@ -250,7 +250,7 @@ INSERT INTO programs
     5,
     'Франция',
     'OECD',
-    NULL,
+    '1900-01-01',
     'https://www.oecd.org/careers/internship-programme/',
     1
     );
