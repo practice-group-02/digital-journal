@@ -5,19 +5,21 @@ import (
 	"digital-journal/internal/models"
 	"encoding/json"
 	"log"
+	"log/slog"
 	"net/http"
 )
 
 func PostProgram(w http.ResponseWriter, r *http.Request) {
 	op := "POST /program"
 
-	w.Header().Set("Content-Type", "application/json")
-
 	var prog models.Program
 	if err := json.NewDecoder(r.Body).Decode(&prog); err != nil {
-		http.Error(w, "invalid request payload: "+err.Error(), http.StatusBadRequest)
+		slog.Error("failed to decode program from json: %s", err)
+		http.Error(w, "Invalid request of program!", http.StatusBadRequest)
 		return
 	}
+
+	err := service.AddProgramToDB(prog)
 
 	result, err := dal.DB.Exec(
 		`INSERT INTO programs 
