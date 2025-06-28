@@ -40,3 +40,10 @@ CREATE TABLE programs_tags (
     FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_programs_type ON programs (type);
+CREATE INDEX idx_programs_user_id ON programs (user_id);
+CREATE INDEX idx_programs_deadline ON programs (deadline);
+CREATE INDEX idx_tags_name ON tags (name);
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_email ON users (email);
