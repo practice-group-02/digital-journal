@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+
 func AddProgramToDB(program *models.Program) error {
 	var userID int
 	err := dal.DB.QueryRow(`SELECT id FROM users WHERE username = $1`, program.Username).Scan(&userID)
@@ -211,4 +212,88 @@ func GetProgramsByType(programType string) ([]models.Program, error) {
 	}
 
 	return programs, nil
+}
+
+func UpdateProgramInDB(program *models.Program) error {
+	var exists bool
+	err := dal.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM programs WHERE id = $1)`, program.ID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check program existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("program with ID %d not found", program.ID)
+	}
+ 
+	var typeID int
+	err = dal.DB.QueryRow(`SELECT id FROM program_types WHERE name = $1`, program.Type).Scan(&typeID)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			err := dal.DB.QueryRow(`INSERT INTO program_types (name) VALUES ($1) RETURNING id`, program.Type).Scan(&typeID)
+			if err != nil {
+				return fmt.Errorf("failed to add program type: %w", err)
+			}
+		} else {
+			return fmt.Errorf("failed to get program type: %w", err)
+		}
+	}
+
+	query := `
+		UPDATE programs
+		SET title = $1, description = $2, type = $3, country = $4, organization = $5, deadline = $6, link = $7, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $8`
+	_, err = dal.DB.Exec(query, program.Title, program.Description, typeID, program.Country, program.Organization, program.Deadline, program.Link, program.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update program: %w", err)
+	}
+ 
+	_, err = dal.DB.Exec(`DELETE FROM programs_tags WHERE program_id = $1`, program.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete old tags: %w", err)
+	}
+
+	tagIDs := make([]int, 0)
+	for _, tag := range program.Tags {
+		tag.Name = strings.ToLower(tag.Name)
+		var tagID int
+		err := dal.DB.QueryRow(`SELECT id FROM tags WHERE name = $1`, tag.Name).Scan(&tagID)
+		if err == nil {
+			tagIDs = append(tagIDs, tagID)
+		} else if err.Error() == "sql: no rows in result set" {
+			err := dal.DB.QueryRow(`INSERT INTO tags (name) VALUES ($1) RETURNING id`, tag.Name).Scan(&tagID)
+			if err != nil {
+				return fmt.Errorf("failed to add tag: %w", err)
+			}
+			tagIDs = append(tagIDs, tagID)
+		} else {
+			return fmt.Errorf("failed to get or create tag: %w", err)
+		}
+	}
+
+	for _, tagID := range tagIDs {
+		_, err := dal.DB.Exec(`INSERT INTO programs_tags (program_id, tag_id) VALUES ($1, $2)`, program.ID, tagID)
+		if err != nil {
+			return fmt.Errorf("failed to link tag to program: %w", err)
+		}
+	}
+
+	return nil
+}
+
+
+func DeleteProgramFromDB(programID int) error {
+	var exists bool
+	err := dal.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM programs WHERE id = $1)`, programID).Scan(&exists)
+	if err != nil {
+		return fmt.Errorf("failed to check program existence: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("program with ID %d not found", programID)
+	}
+ 
+	_, err = dal.DB.Exec(`DELETE FROM programs WHERE id = $1`, programID)
+	if err != nil {
+		return fmt.Errorf("failed to delete program: %w", err)
+	}
+
+	return nil
 }

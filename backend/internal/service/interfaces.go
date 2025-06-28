@@ -7,4 +7,6 @@ type Service interface {
     GetProgramsFromDB() ([]models.Program, error)
     GetProgramsByTags(tags string) ([]models.Program, error)
     GetProgramsByType(programType string) ([]models.Program, error)
+    UpdateProgramInDB(program *models.Program) error
+    DeleteProgramFromDB(programID int) error 
 }

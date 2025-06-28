@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
-var svc service.Service
+var svc service.Service = &service.ServiceImpl{}
 
 func PostProgram(w http.ResponseWriter, r *http.Request) {
 	op := "POST /program"
@@ -106,4 +107,59 @@ func GetProgramsOfType(w http.ResponseWriter, r *http.Request) {
 	}
 
 	WriteJSONResponse(w, http.StatusOK, programs)
+}
+
+
+func UpdateProgram(w http.ResponseWriter, r *http.Request) {
+	op := "PUT /program/{Id}"
+
+	idStr := r.PathValue("Id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("invalid program ID", "error", err, "op", op)
+		http.Error(w, "Invalid program ID", http.StatusBadRequest)
+		return
+	}
+
+	program := &models.Program{}
+	err = json.NewDecoder(r.Body).Decode(program)
+	if err != nil {
+		slog.Error("failed to decode program", "error", err, "op", op)
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	program.ID = id
+
+	err = svc.UpdateProgramInDB(program)
+	if err != nil {
+		slog.Error("failed to update program in DB", "error", err, "op", op)
+		http.Error(w, "Failed to update program", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("updated program successfully", "op", op)
+	WriteJSONResponse(w, http.StatusOK, map[string]string{"message": "Program updated successfully"})
+}
+
+func DeleteProgram(w http.ResponseWriter, r *http.Request) {
+	op := "DELETE /program/{Id}"
+
+	idStr := r.PathValue("Id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		slog.Error("invalid program ID", "error", err, "op", op)
+		http.Error(w, "Invalid program ID", http.StatusBadRequest)
+		return
+	}
+
+	err = svc.DeleteProgramFromDB(id)
+	if err != nil {
+		slog.Error("failed to delete program from DB", "error", err, "op", op)
+		http.Error(w, "Failed to delete program", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("deleted program successfully", "op", op)
+	WriteJSONResponse(w, http.StatusOK, map[string]string{"message": "Program deleted successfully"})
 }

@@ -25,3 +25,11 @@ func (m *MockService) GetProgramsByType(programType string) ([]models.Program, e
 		{ID: 1, Title: "Test Program", Description: "Test Description", Type: programType, Country: "Казахстан", Organization: "Test Org", Username: "user"},
 	}, nil
 }
+
+func (m *MockService) UpdateProgramInDB(program *models.Program) error { 
+	return nil
+}
+
+func (m *MockService) DeleteProgramFromDB(programID int) error {
+	return nil
+}

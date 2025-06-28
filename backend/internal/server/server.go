@@ -31,6 +31,8 @@ func NewServer(config *config.Config) *server {
 	mux.HandleFunc("GET /programs", handlers.GetPrograms)
 	mux.HandleFunc("GET /programs/tags", handlers.GetProgramsWithTags)
 	mux.HandleFunc("GET /programs/{Type}", handlers.GetProgramsOfType)
+	mux.HandleFunc("PUT /program/{Id}", handlers.UpdateProgram)
+	mux.HandleFunc("DELETE /program/{Id}", handlers.DeleteProgram)
 
 	return &server{
 		mux:    mux,
