@@ -115,23 +115,34 @@ func GetProgramsFromDB() ([]models.Program, error) {
 
 func GetProgramsByTags(tags string) ([]models.Program, error) {
 	tags = strings.ToLower(tags)
+	
+	tagsSep := strings.Split(tags, ",")
+	placeholders := make([]string, len(tagsSep))
+	for i := range tagsSep {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+	}
 
-	var programs []models.Program
-	query := `
-		SELECT p.id, p.title, p.description, pt.name as type, p.country, p.organization, p.deadline, p.link, u.username, p.created_at, p.updated_at
+	query := fmt.Sprintf(`
+		SELECT DISTINCT p.id, p.title, p.description, pt.name as type, p.country, p.organization, p.deadline, p.link, u.username, p.created_at, p.updated_at
 		FROM programs p
 		JOIN programs_tags ptg ON p.id = ptg.program_id
 		JOIN tags t ON ptg.tag_id = t.id
 		JOIN program_types pt ON p.type = pt.id
 		JOIN users u ON p.user_id = u.id
-		WHERE t.name = $1`
+		WHERE t.name IN (%s)`, strings.Join(placeholders, ","))
 
-	rows, err := dal.DB.Query(query, tags)
+	params := make([]interface{}, len(tagsSep))
+	for i, tag := range tagsSep {
+		params[i] = tag
+	}
+
+	rows, err := dal.DB.Query(query, params...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch programs by tags: %w", err)
 	}
 	defer rows.Close()
 
+	var programs []models.Program
 	for rows.Next() {
 		var program models.Program
 		if err := rows.Scan(&program.ID, &program.Title, &program.Description, &program.Type, &program.Country, &program.Organization, &program.Deadline, &program.Link, &program.Username, &program.CreatedAt, &program.UpdatedAt); err != nil {
@@ -157,6 +168,7 @@ func GetProgramsByTags(tags string) ([]models.Program, error) {
 
 	return programs, nil
 }
+
 
 
 

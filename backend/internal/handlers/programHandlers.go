@@ -81,7 +81,6 @@ func GetProgramsOfType(w http.ResponseWriter, r *http.Request) {
 	programType := r.PathValue("Type")
 
 	if programType == "" {
-		
 		http.Error(w, "Type is required", http.StatusBadRequest)
 		return
 	}
