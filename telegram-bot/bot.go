@@ -44,10 +44,8 @@ func sendMessage(msg string) {
 	}
 }
 
-
-
 func sendWelcomeMessage() {
-    welcomeMessage := `🎉 Добро пожаловать в бот! 🎉
+	welcomeMessage := `🎉 Добро пожаловать в бот! 🎉
 
 Вот доступные команды, с помощью которых ты можешь найти программы:
 
@@ -57,15 +55,15 @@ func sendWelcomeMessage() {
 
 ➡️ /programs/<type> - Получить программы по типу (например, /programs/стипендия).
 
-➡️ /programs_tags/<tag> - Получить программы по тегам (например, /programs_tags/магистратура).
+➡️ /programs_tags/<tag> - Получить программы по тегам (например, /programs_tags/казахстан,бакалавриат).
 
 💡Подсказка: Чтобы получить информацию по конкретному тегу или типу программы, просто замени <type> и <tag> на подходящие параметры:
-- Например: /programs/стипендия или /programs_tags/магистратура.
+- Например: /programs/стипендия или /programs_tags/магистратура,phd.
 
 🚀 Используй бота и находи полезные программы для себя!`
 
-    message := tgbotapi.NewMessage(chatID, welcomeMessage)
-    bot.Send(message)
+	message := tgbotapi.NewMessage(chatID, welcomeMessage)
+	bot.Send(message)
 }
 
 // Функция для получения программ с сервера
@@ -132,8 +130,6 @@ func getProgramsByTags(tags string) string {
 	}
 	defer resp.Body.Close()
 
-	// Логирование для проверки ответа
-
 	var programs []map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&programs); err != nil {
 		return "Error decoding response"
@@ -163,7 +159,7 @@ func handleMessages(update tgbotapi.Update) {
 	// Обработка команд
 	switch {
 	case update.Message.Text == "/start":
-        sendWelcomeMessage()	
+		sendWelcomeMessage()
 	// Обрабатываем команду "/programs/tags?tags=<tags>"
 	case strings.HasPrefix(update.Message.Text, "/programs_tags/"):
 		// Извлекаем теги из команды
