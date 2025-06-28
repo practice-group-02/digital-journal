@@ -44,6 +44,30 @@ func sendMessage(msg string) {
 	}
 }
 
+
+
+func sendWelcomeMessage() {
+    welcomeMessage := `🎉 Добро пожаловать в бот! 🎉
+
+Вот доступные команды, с помощью которых ты можешь найти программы:
+
+➡️ /start - Запуск бота и вывод всех доступных команд.
+
+➡️ /programs - Получить список всех программ.
+
+➡️ /programs/<type> - Получить программы по типу (например, /programs/стипендия).
+
+➡️ /programs_tags/<tag> - Получить программы по тегам (например, /programs_tags/магистратура).
+
+💡Подсказка: Чтобы получить информацию по конкретному тегу или типу программы, просто замени <type> и <tag> на подходящие параметры:
+- Например: /programs/стипендия или /programs_tags/магистратура.
+
+🚀 Используй бота и находи полезные программы для себя!`
+
+    message := tgbotapi.NewMessage(chatID, welcomeMessage)
+    bot.Send(message)
+}
+
 // Функция для получения программ с сервера
 func getPrograms() string {
 	resp, err := http.Get(apiUrl + "/programs")
@@ -98,53 +122,36 @@ func getProgramsByType(programType string) string {
 	return result.String()
 }
 
-// // Функция для получения программ по тегам
-// func getProgramsByTags(tags string) string {
-// 	// Преобразуем теги в нижний регистр, если это необходимо
-// 	tags = strings.ToLower(tags)
+func getProgramsByTags(tags string) string {
+	query := apiUrl + "/programs/tags?tags=" + tags
+	resp, err := http.Get(query)
+	log.Printf("REQ := %s", query)
+	if err != nil {
+		log.Printf("Error fetching programs by tags: %s", err)
+		return "Error fetching programs by tags"
+	}
+	defer resp.Body.Close()
 
-// 	// Формируем запрос к серверу
-// 	resp, err := http.Get(apiUrl + "/programs/tags?tags=" + tags)
-// 	if err != nil {
-// 		log.Printf("Error fetching programs by tags: %s", err)
-// 		return "Error fetching programs by tags"
-// 	}
-// 	defer resp.Body.Close()
+	// Логирование для проверки ответа
 
-// 	// Чтение ответа
-// 	body, err := io.ReadAll(resp.Body)
-// 	if err != nil {
-// 		log.Printf("Error reading response body: %s", err)
-// 		return "Error reading response body"
-// 	}
+	var programs []map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&programs); err != nil {
+		return "Error decoding response"
+	}
 
-// 	// Декодируем JSON в структуру Program
-// 	var programs []models.Program // Используем структуру, которая уже есть на бэкенде
-// 	if err := json.Unmarshal(body, &programs); err != nil {
-// 		log.Printf("Error decoding response: %s", err)
-// 		return "Error decoding response"
-// 	}
+	// Если нет программ, возвращаем сообщение
+	if len(programs) == 0 {
+		return "No programs found for the specified tags."
+	}
 
-// 	// Если программ нет, возвращаем сообщение
-// 	if len(programs) == 0 {
-// 		return "No programs found for the specified tags."
-// 	}
+	// Форматируем ответ
+	var result strings.Builder
+	for _, program := range programs {
+		result.WriteString(fmt.Sprintf("Title: %s\nType: %s\nDescription: %s\n\n", program["title"], program["type"], program["description"]))
+	}
+	return result.String()
+}
 
-// 	// Форматируем ответ для Telegram
-// 	var result strings.Builder
-// 	for _, program := range programs {
-// 		result.WriteString(fmt.Sprintf("Title: %s\nType: %s\nDescription: %s\n", program.Title, program.Type, program.Description))
-// 		result.WriteString("Tags: ")
-// 		for _, tag := range program.Tags {
-// 			result.WriteString(fmt.Sprintf("%s ", tag.Name))
-// 		}
-// 		result.WriteString("\n\n")
-// 	}
-
-// 	return result.String() // Возвращаем отформатированное сообщение
-// }
-
-// Функция для обработки входящих сообщений
 func handleMessages(update tgbotapi.Update) {
 	if update.Message == nil {
 		return
@@ -155,6 +162,25 @@ func handleMessages(update tgbotapi.Update) {
 
 	// Обработка команд
 	switch {
+	case update.Message.Text == "/start":
+        sendWelcomeMessage()	
+	// Обрабатываем команду "/programs/tags?tags=<tags>"
+	case strings.HasPrefix(update.Message.Text, "/programs_tags/"):
+		// Извлекаем теги из команды
+		tags := strings.TrimPrefix(update.Message.Text, "/programs_tags/")
+		tags = strings.TrimSpace(tags)
+
+		// Проверяем, если теги не указаны
+		if tags == "" {
+			sendMessage("Please provide tags, e.g., /programs/tags/магистратура,научные исследования")
+			return
+		}
+
+		// Отправляем запрос на сервер для получения программ по тегам
+		sendMessage("Fetching programs with tags: " + tags)
+		programsMessage := getProgramsByTags(tags) // Отправляем запрос по тегам
+		sendMessage(programsMessage)               // Отправляем найденные программы
+
 	// Обрабатываем команду "/programs/<type>"
 	case strings.HasPrefix(update.Message.Text, "/programs/"):
 		// Извлекаем тип программы из команды
@@ -170,23 +196,6 @@ func handleMessages(update tgbotapi.Update) {
 		// Отправляем запрос на сервер для получения программ по типу
 		sendMessage("Fetching programs of type: " + programType)
 		sendMessage(getProgramsByType(programType)) // Отправляем запрос по типу программы
-
-	// // Обрабатываем команду "/programs/tags?tags=<tags>"
-	// case strings.HasPrefix(update.Message.Text, "/programs/tags"):
-	// 	// Извлекаем теги из команды
-	// 	tags := strings.TrimPrefix(update.Message.Text, "/programs/tags")
-	// 	tags = strings.TrimSpace(tags)
-
-	// 	// Проверяем, если теги не указаны
-	// 	if tags == "" {
-	// 		sendMessage("Please provide tags, e.g., /programs/tags магистратура,научные исследования")
-	// 		return
-	// 	}
-
-	// 	// Отправляем запрос на сервер для получения программ по тегам
-	// 	sendMessage("Fetching programs with tags: " + tags)
-	// 	programsMessage := getProgramsByTags(tags) // Отправляем запрос по тегам
-	// 	sendMessage(programsMessage)               // Отправляем найденные программы
 
 	// Обработка команды по умолчанию для команды "/programs"
 	case update.Message.Text == "/programs":
