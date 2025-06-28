@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"strings"
 )
+
+var svc service.Service
 
 func PostProgram(w http.ResponseWriter, r *http.Request) {
 	op := "POST /program"
@@ -26,7 +29,7 @@ func PostProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = service.AddProgramToDB(program)
+	err = svc.AddProgramToDB(program)
 	if err != nil {
 		slog.Error("failed to add program to DB", "error", err, "op", op)
 		http.Error(w, "Failed to add program", http.StatusInternalServerError)
@@ -37,9 +40,8 @@ func PostProgram(w http.ResponseWriter, r *http.Request) {
 	WriteJSONResponse(w, http.StatusCreated, map[string]string{"message": "Program created successfully"})
 }
 
-
 func GetPrograms(w http.ResponseWriter, r *http.Request) {
-	programs, err := service.GetProgramsFromDB()
+	programs, err := svc.GetProgramsFromDB()
 	if err != nil {
 		if err.Error() == "programs not found" {
 			slog.Error("failed to get programs", "error", err)
@@ -61,7 +63,7 @@ func GetProgramsWithTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	programs, err := service.GetProgramsByTags(tags)
+	programs, err := svc.GetProgramsByTags(tags)
 	if err != nil {
 		if err.Error() == "programs not found" {
 			slog.Error("failed to get programs by tags", "error", err)
@@ -76,17 +78,22 @@ func GetProgramsWithTags(w http.ResponseWriter, r *http.Request) {
 	WriteJSONResponse(w, http.StatusOK, programs)
 }
 
-
 func GetProgramsOfType(w http.ResponseWriter, r *http.Request) {
-	programType := r.PathValue("Type")
+	path := r.URL.Path
 
-	if programType == "" {
+	// Используем регулярное выражение для извлечения параметра "Type"
+	re := regexp.MustCompile(`/programs/([^/]+)`)
+	matches := re.FindStringSubmatch(path)
+
+	if len(matches) < 2 {
 		http.Error(w, "Type is required", http.StatusBadRequest)
 		return
 	}
 
+	programType := matches[1]
+
 	programType = strings.ToLower(programType)
-	programs, err := service.GetProgramsByType(programType)
+	programs, err := svc.GetProgramsByType(programType)
 	if err != nil {
 		if err.Error() == "programs not found" {
 			slog.Error("failed to get programs with type", "error", err)
