@@ -1,9 +1,9 @@
-![Alt text](C:\Users\Zhanel\digital-journal\photo.jpg)
-
-
 # Digital Journal 
 
 Digital Journal — это цифровой журнал о стипендиях, грантах и стажировках, предназначенный для студентов и других заинтересованных пользователей. В этом проекте реализована возможность поиска программ по типу и тегам, а также интеграция с Telegram-ботом для получения информации о программах.
+
+![:)](github.com/practice-group-AITU/digital-journal\img\photo.jpg)
+
 
 ## Стек технологий
 
