@@ -52,7 +52,7 @@ services:
       context: ./telegram-bot
       dockerfile: Dockerfile
     environment:
-      - TELEGRAM_TOKEN=8168169856:AAEh6I7uQyl9dKale7E21uoEiVWXzsQAsFE
+      - TELEGRAM_TOKEN=7766315223:AAGmuVAB9SGEvuuQGS1SduR9bDnYmsb8QbM
     depends_on:
       - backend
     restart: always    

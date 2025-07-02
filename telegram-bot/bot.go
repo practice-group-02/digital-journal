@@ -22,7 +22,7 @@ var bot *tgbotapi.BotAPI
 // Инициализация бота
 func init() {
 	var err error
-	bot, err = tgbotapi.NewBotAPI("8168169856:AAEh6I7uQyl9dKale7E21uoEiVWXzsQAsFE")
+	bot, err = tgbotapi.NewBotAPI("7766315223:AAGmuVAB9SGEvuuQGS1SduR9bDnYmsb8QbM")
 	if err != nil {
 		log.Fatal(err)
 	}
